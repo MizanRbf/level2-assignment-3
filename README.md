@@ -20,7 +20,7 @@ By completing this project, the following database concepts are demonstrated:
 
 ---
 
-## 🧩 Database Design
+## 🧩 Database Designed
 
 ### 📊 Entities (Tables)
 
@@ -28,12 +28,12 @@ By completing this project, the following database concepts are demonstrated:
 Stores system users including admins and customers.
 
 **Attributes:**
-- `user_id` (PK)
-- `role` (Admin / Customer)
+- `id` (PK)
 - `name`
 - `email` (Unique)
 - `password`
-- `phone_number`
+- `phone`
+- `role` (Admin / Customer)
 
 ---
 
@@ -41,12 +41,12 @@ Stores system users including admins and customers.
 Stores information about rentable vehicles.
 
 **Attributes:**
-- `vehicle_id` (PK)
+- `id` (PK)
 - `vehicle_name`
-- `vehicle_type` (car / bike / truck)
+- `type` (car / bike / truck)
 - `model`
 - `registration_number` (Unique)
-- `price_per_day`
+- `daily_rent_price`
 - `availability_status` (available / rented / maintenance)
 
 ---
@@ -55,13 +55,13 @@ Stores information about rentable vehicles.
 Stores rental booking information.
 
 **Attributes:**
-- `booking_id` (PK)
-- `user_id` (FK → Users)
+- `id` (PK)
+- `customer_id` (FK → Users)
 - `vehicle_id` (FK → Vehicles)
-- `start_date`
-- `end_date`
-- `booking_status` (pending / confirmed / completed / cancelled)
+- `rent_start_date`
+- `rent_end_date`
 - `total_cost`
+- `status` (pending / confirmed / completed / cancelled)
 
 ---
 
@@ -78,24 +78,101 @@ Stores rental booking information.
 - **Logical One-to-One:**  
   Each booking connects exactly one user and one vehicle
 
-📌 **ERD Tool Used:** Lucidchart  
-📌 **Submission Requirement:** Public shareable ERD link
+- 📌 ERD Tool Used: DrawSQL
+- 🔗 ERD Link:  
+https://drawsql.app/teams/mizan-rbf/diagrams/vehicle-rental-system
 
 ---
 
-## 🧪 SQL Queries (`queries.sql`)
+## 🧪 SQL Queries Explanation (`queries.sql`)
 
-### Query 1: INNER JOIN
-**Retrieve booking information along with customer name and vehicle name.**
+This section explains all SQL queries included in the `queries.sql` file.
+Each query solves a specific business requirement of the Vehicle Rental System.
 
-```sql
-SELECT 
-    u.name AS customer_name,
-    v.vehicle_name,
-    b.start_date,
-    b.end_date,
-    b.booking_status,
-    b.total_cost
+------------------------------------------------------------------
+
+🔹 Query 1: Retrieve Booking Information with Customer and Vehicle Details
+
+Purpose:
+Retrieve booking details along with customer name and vehicle name.
+
+Concepts Used:
+INNER JOIN
+
+SQL Query:
+SELECT
+  b.id AS booking_id,
+  u.name AS customer_name,
+  v.vehicle_name,
+  b.rent_start_date AS start_date,
+  b.rent_end_date AS end_date,
+  b.status
 FROM bookings b
-INNER JOIN users u ON b.user_id = u.user_id
-INNER JOIN vehicles v ON b.vehicle_id = v.vehicle_id;
+  INNER JOIN users u ON b.customer_id = u.id
+  INNER JOIN vehicles v ON b.vehicle_id = v.id;
+
+Explanation:
+This query joins the bookings, users, and vehicles tables to display complete
+booking information including which customer booked which vehicle.
+
+------------------------------------------------------------------
+
+🔹 Query 2: Find Vehicles That Have Never Been Booked
+
+Purpose:
+Identify vehicles that do not have any booking records.
+
+Concepts Used:
+NOT EXISTS
+
+SQL Query:
+SELECT * FROM vehicles v
+WHERE NOT EXISTS 
+(SELECT 1 FROM bookings b WHERE b.vehicle_id = v.id);
+
+Explanation:
+The subquery checks whether a vehicle exists in the bookings table.
+If no related booking is found, the vehicle is returned in the result.
+
+------------------------------------------------------------------
+
+🔹 Query 3: Retrieve Available Vehicles of a Specific Type
+
+Purpose:
+Retrieve all vehicles that are currently available and belong to a specific
+vehicle type (e.g., car).
+
+Concepts Used:
+SELECT, WHERE
+
+SQL Query:
+SELECT * FROM vehicles
+WHERE type = 'car' AND availability_status = 'available';
+
+Explanation:
+This query filters vehicles based on their availability status and vehicle type.
+
+------------------------------------------------------------------
+
+🔹 Query 4: Find Vehicles with More Than Two Bookings
+
+Purpose:
+Identify vehicles that have been booked more than two times.
+
+Concepts Used:
+GROUP BY, HAVING, COUNT
+
+SQL Query:
+SELECT v.vehicle_name,
+  COUNT(b.vehicle_id) AS total_bookings FROM bookings b 
+  JOIN vehicles v ON b.vehicle_id = v.id
+GROUP BY v.vehicle_name HAVING COUNT(b.vehicle_id) > 2;
+
+Explanation:
+The query groups booking records by vehicle and uses the HAVING clause
+to filter vehicles that have more than two bookings.
+
+------------------------------------------------------------------
+
+
+
