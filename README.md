@@ -100,6 +100,7 @@ Concepts Used:
 INNER JOIN
 
 SQL Query:
+```sql
 SELECT
   b.id AS booking_id,
   u.name AS customer_name,
@@ -110,7 +111,7 @@ SELECT
 FROM bookings b
   INNER JOIN users u ON b.customer_id = u.id
   INNER JOIN vehicles v ON b.vehicle_id = v.id;
-
+```
 Explanation:
 This query joins the bookings, users, and vehicles tables to display complete
 booking information including which customer booked which vehicle.
@@ -126,10 +127,11 @@ Concepts Used:
 NOT EXISTS
 
 SQL Query:
+```sql
 SELECT * FROM vehicles v
 WHERE NOT EXISTS 
 (SELECT 1 FROM bookings b WHERE b.vehicle_id = v.id);
-
+```
 Explanation:
 The subquery checks whether a vehicle exists in the bookings table.
 If no related booking is found, the vehicle is returned in the result.
@@ -146,9 +148,10 @@ Concepts Used:
 SELECT, WHERE
 
 SQL Query:
+```sql
 SELECT * FROM vehicles
 WHERE type = 'car' AND availability_status = 'available';
-
+```
 Explanation:
 This query filters vehicles based on their availability status and vehicle type.
 
@@ -163,11 +166,12 @@ Concepts Used:
 GROUP BY, HAVING, COUNT
 
 SQL Query:
+```sql
 SELECT v.vehicle_name,
   COUNT(b.vehicle_id) AS total_bookings FROM bookings b 
   JOIN vehicles v ON b.vehicle_id = v.id
 GROUP BY v.vehicle_name HAVING COUNT(b.vehicle_id) > 2;
-
+```
 Explanation:
 The query groups booking records by vehicle and uses the HAVING clause
 to filter vehicles that have more than two bookings.
